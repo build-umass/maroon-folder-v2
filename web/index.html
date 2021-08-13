@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+
+<body>
+  <div id="app">
+    <v-app>
+      <v-container>
+        <v-data-table :headers="headers" :items="resources" class="elevation-1">
+          <template v-slot:top>
+            <v-toolbar flat>
+              <v-toolbar-title>Maroon</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-dialog v-model="dialog">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
+                    New Item
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-card-title>
+                    <span class="text-h5">{{ formTitle }}</span>
+                  </v-card-title>
+
+                  <v-card-text>
+                    <v-container>
+                      <v-row>
+                        <v-col>
+                          <v-textarea auto-grow v-model="editedItem.name" label="Name"></v-textarea>
+                        </v-col>
+                        <v-col>
+                          <v-textarea auto-grow v-model="editedItem.refer" label="Refer"></v-textarea>
+                        </v-col>
+                        <v-col>
+                          <v-textarea auto-grow v-model="editedItem.respond" label="Respond"></v-textarea>
+                        </v-col>
+                        <v-col>
+                          <v-textarea auto-grow v-model="editedItem.recognize" label="Recognize"></v-textarea>
+                        </v-col>
+                        <v-col>
+                          <v-textarea auto-grow v-model="editedItem.report" label="Report"></v-textarea>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </v-card-text>
+
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" text @click="close">
+                      Cancel
+                    </v-btn>
+                    <v-btn color="blue darken-1" text @click="save">
+                      Save
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+              <v-dialog v-model="dialogDelete" max-width="500px">
+                <v-card>
+                  <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
+                    <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+                    <v-spacer></v-spacer>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-toolbar>
+          </template>
+          <template v-slot:item.actions="{ item }">
+            <v-icon small class="mr-2" @click="editItem(item)">
+              mdi-pencil
+            </v-icon>
+            <v-icon small @click="deleteItem(item)">
+              mdi-delete
+            </v-icon>
+          </template>
+        </v-data-table>
+      </v-container>
+    </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      vuetify: new Vuetify(),
+      data: () => ({
+        dialog: false,
+        dialogDelete: false,
+        headers: [
+          { text: 'Name', value: 'name', sortable: false, },
+          { text: 'Refer', value: 'refer', sortable: false, },
+          { text: 'Respond', value: 'respond', sortable: false, },
+          { text: 'Recognize', value: 'recognize', sortable: false, },
+          { text: 'Report', value: 'report', sortable: false, },
+          { text: 'Actions', value: 'actions', sortable: false, },
+        ],
+        resources: [
+          {
+            name: "Not sure what, but something's wrong",
+            refer:
+              "Urgent: 911 UMPD (413) 545-3111  Advice and consultation: CCPH (413) 545-2337",
+            respond:
+              "Express concerns and care Give an example of a time that the student’s behavior has worried you Listen to and believe student’s responses Be supportive and encouraging if student agrees to get help Call 911 if there is a potential threat to student’s safety or the safety of others",
+            recognize: "",
+            report:
+              "DoS (413) 545-2684 Undergraduate Dean umass.edu/registrar/students/ list-academic-deans Graduate Dean umass.edu/gradschool",
+          },
+          {
+            name: "Self harm, suicide ideation, suicidal risk",
+            refer:
+              "Urgent: 911 UMPD (413) 545-3111  Advice and consultation: CCPH (413) 545-2337",
+            respond:
+              "Call 911 if there is a potential threat to student’s safety or the safety of others Express concern and care Always take suicidal statements, thoughts or behaviors very seriosly If you suspect a student may be suicidal, seek immediate consultation",
+            recognize: "",
+            report: "DoS (413) 545-2684",
+          },
+          {
+            name: "Alcohol, marijuna or drug abuse",
+            refer:
+              "Urgent: 911 UMPD (413) 545-3111  Advice and consultation: BASICS (413) 577-5071 CHP (413) 577-5181 CCPH (413) 545-2337 UHS (413) 577-5000",
+            respond:
+              "Express concern and care Give an example of a time that the student’s begavior has worried you Be supportive and encouraging if the student agrees to get help Offer to help the student make an appointment with BASICS program for alcohol screening and intervention",
+            recognize: "",
+            report: "DoS (413) 545-2684",
+          },
+        ],
+        editedItem: {
+          name: '',
+          refer: '',
+          respond: '',
+          recognize: '',
+          report: '',
+        },
+        defaultItem: {
+          name: '',
+          refer: '',
+          respond: '',
+          recognize: '',
+          report: '',
+        },
+      }),
+
+      computed: {
+        formTitle() {
+          return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+        },
+      },
+
+      watch: {
+        dialog(val) {
+          val || this.close()
+        },
+        dialogDelete(val) {
+          val || this.closeDelete()
+        },
+      },
+
+      created() {
+        this.initialize()
+      },
+
+      methods: {
+        initialize() {
+          this.resources = [
+            {
+              name: "Not sure what, but something's wrong",
+              refer:
+                "Urgent: 911 UMPD (413) 545-3111  Advice and consultation: CCPH (413) 545-2337",
+              respond:
+                "Express concerns and care Give an example of a time that the student’s behavior has worried you Listen to and believe student’s responses Be supportive and encouraging if student agrees to get help Call 911 if there is a potential threat to student’s safety or the safety of others",
+              recognize: "",
+              report:
+                "DoS (413) 545-2684 Undergraduate Dean umass.edu/registrar/students/ list-academic-deans Graduate Dean umass.edu/gradschool",
+            },
+            {
+              name: "Self harm, suicide ideation, suicidal risk",
+              refer:
+                "Urgent: 911 UMPD (413) 545-3111  Advice and consultation: CCPH (413) 545-2337",
+              respond:
+                "Call 911 if there is a potential threat to student’s safety or the safety of others Express concern and care Always take suicidal statements, thoughts or behaviors very seriosly If you suspect a student may be suicidal, seek immediate consultation",
+              recognize: "",
+              report: "DoS (413) 545-2684",
+            },
+            {
+              name: "Alcohol, marijuna or drug abuse",
+              refer:
+                "Urgent: 911 UMPD (413) 545-3111  Advice and consultation: BASICS (413) 577-5071 CHP (413) 577-5181 CCPH (413) 545-2337 UHS (413) 577-5000",
+              respond:
+                "Express concern and care Give an example of a time that the student’s begavior has worried you Be supportive and encouraging if the student agrees to get help Offer to help the student make an appointment with BASICS program for alcohol screening and intervention",
+              recognize: "",
+              report: "DoS (413) 545-2684",
+            },
+          ]
+        },
+
+        editItem(item) {
+          this.editedIndex = this.resources.indexOf(item)
+          this.editedItem = Object.assign({}, item)
+          this.dialog = true
+        },
+
+        deleteItem(item) {
+          this.editedIndex = this.resources.indexOf(item)
+          this.editedItem = Object.assign({}, item)
+          this.dialogDelete = true
+        },
+
+        deleteItemConfirm() {
+          this.resources.splice(this.editedIndex, 1)
+          this.closeDelete()
+        },
+
+        close() {
+          this.dialog = false
+          this.$nextTick(() => {
+            this.editedItem = Object.assign({}, this.defaultItem)
+            this.editedIndex = -1
+          })
+        },
+
+        closeDelete() {
+          this.dialogDelete = false
+          this.$nextTick(() => {
+            this.editedItem = Object.assign({}, this.defaultItem)
+            this.editedIndex = -1
+          })
+        },
+
+        save() {
+          if (this.editedIndex > -1) {
+            Object.assign(this.resources[this.editedIndex], this.editedItem)
+          } else {
+            this.resources.push(this.editedItem)
+          }
+          this.close()
+        },
+      },
+    })
+  </script>
+</body>
+
+<style>
+  .header {
+    text-align: center;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .v-textarea {
+    font-size: 14px;
+    line-height: 21px;
+  }
+</style>
+
+</html>
