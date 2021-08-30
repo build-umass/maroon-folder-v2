@@ -89,7 +89,24 @@
 
   <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-firestore.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vuefire/2.0.0-alpha.20/vuefire.js"></script>
   <script>
+    // Setup Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlxneiUCqXHhbpy_VZurOIF1S5bz0pBxc",
+      authDomain: "maroon-folder-54412.firebaseapp.com",
+      projectId: "maroon-folder-54412",
+      storageBucket: "maroon-folder-54412.appspot.com",
+      messagingSenderId: "801155733543",
+      appId: "1:801155733543:web:86aa94446d8f2c9cf01602"
+    }
+    // Initialize Firebase
+    const db = firebase.initializeApp(firebaseConfig).firestore()
+
+    Vue.use(Vuefire)
+
     new Vue({
       el: '#app',
       vuetify: new Vuetify(),
@@ -104,36 +121,7 @@
           { text: 'Report', value: 'report', sortable: false, },
           { text: 'Actions', value: 'actions', sortable: false, },
         ],
-        resources: [
-          {
-            name: "Not sure what, but something's wrong",
-            refer:
-              "Urgent: 911 UMPD (413) 545-3111  Advice and consultation: CCPH (413) 545-2337",
-            respond:
-              "Express concerns and care Give an example of a time that the student’s behavior has worried you Listen to and believe student’s responses Be supportive and encouraging if student agrees to get help Call 911 if there is a potential threat to student’s safety or the safety of others",
-            recognize: "",
-            report:
-              "DoS (413) 545-2684 Undergraduate Dean umass.edu/registrar/students/ list-academic-deans Graduate Dean umass.edu/gradschool",
-          },
-          {
-            name: "Self harm, suicide ideation, suicidal risk",
-            refer:
-              "Urgent: 911 UMPD (413) 545-3111  Advice and consultation: CCPH (413) 545-2337",
-            respond:
-              "Call 911 if there is a potential threat to student’s safety or the safety of others Express concern and care Always take suicidal statements, thoughts or behaviors very seriosly If you suspect a student may be suicidal, seek immediate consultation",
-            recognize: "",
-            report: "DoS (413) 545-2684",
-          },
-          {
-            name: "Alcohol, marijuna or drug abuse",
-            refer:
-              "Urgent: 911 UMPD (413) 545-3111  Advice and consultation: BASICS (413) 577-5071 CHP (413) 577-5181 CCPH (413) 545-2337 UHS (413) 577-5000",
-            respond:
-              "Express concern and care Give an example of a time that the student’s begavior has worried you Be supportive and encouraging if the student agrees to get help Offer to help the student make an appointment with BASICS program for alcohol screening and intervention",
-            recognize: "",
-            report: "DoS (413) 545-2684",
-          },
-        ],
+        resources: [],
         editedItem: {
           name: '',
           refer: '',
@@ -150,6 +138,10 @@
         },
       }),
 
+      firestore: {
+        resources: db.collection('resources'),
+      },
+
       computed: {
         formTitle() {
           return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
@@ -165,65 +157,30 @@
         },
       },
 
-      created() {
-        this.initialize()
-      },
-
       methods: {
-        initialize() {
-          this.resources = [
-            {
-              name: "Not sure what, but something's wrong",
-              refer:
-                "Urgent: 911 UMPD (413) 545-3111  Advice and consultation: CCPH (413) 545-2337",
-              respond:
-                "Express concerns and care Give an example of a time that the student’s behavior has worried you Listen to and believe student’s responses Be supportive and encouraging if student agrees to get help Call 911 if there is a potential threat to student’s safety or the safety of others",
-              recognize: "",
-              report:
-                "DoS (413) 545-2684 Undergraduate Dean umass.edu/registrar/students/ list-academic-deans Graduate Dean umass.edu/gradschool",
-            },
-            {
-              name: "Self harm, suicide ideation, suicidal risk",
-              refer:
-                "Urgent: 911 UMPD (413) 545-3111  Advice and consultation: CCPH (413) 545-2337",
-              respond:
-                "Call 911 if there is a potential threat to student’s safety or the safety of others Express concern and care Always take suicidal statements, thoughts or behaviors very seriosly If you suspect a student may be suicidal, seek immediate consultation",
-              recognize: "",
-              report: "DoS (413) 545-2684",
-            },
-            {
-              name: "Alcohol, marijuna or drug abuse",
-              refer:
-                "Urgent: 911 UMPD (413) 545-3111  Advice and consultation: BASICS (413) 577-5071 CHP (413) 577-5181 CCPH (413) 545-2337 UHS (413) 577-5000",
-              respond:
-                "Express concern and care Give an example of a time that the student’s begavior has worried you Be supportive and encouraging if the student agrees to get help Offer to help the student make an appointment with BASICS program for alcohol screening and intervention",
-              recognize: "",
-              report: "DoS (413) 545-2684",
-            },
-          ]
-        },
-
         editItem(item) {
           this.editedIndex = this.resources.indexOf(item)
-          this.editedItem = Object.assign({}, item)
+          this.editedItem = { ...item }
           this.dialog = true
         },
 
         deleteItem(item) {
           this.editedIndex = this.resources.indexOf(item)
-          this.editedItem = Object.assign({}, item)
+          this.editedItem = { ...item }
           this.dialogDelete = true
         },
 
         deleteItemConfirm() {
-          this.resources.splice(this.editedIndex, 1)
+          db.collection('resources')
+            .doc(this.resources[this.editedIndex].id)
+            .delete()
           this.closeDelete()
         },
 
         close() {
           this.dialog = false
           this.$nextTick(() => {
-            this.editedItem = Object.assign({}, this.defaultItem)
+            this.editedItem = { ...this.defaultItem }
             this.editedIndex = -1
           })
         },
@@ -231,16 +188,19 @@
         closeDelete() {
           this.dialogDelete = false
           this.$nextTick(() => {
-            this.editedItem = Object.assign({}, this.defaultItem)
+            this.editedItem = { ...this.defaultItem }
             this.editedIndex = -1
           })
         },
 
         save() {
           if (this.editedIndex > -1) {
-            Object.assign(this.resources[this.editedIndex], this.editedItem)
+            db.collection('resources')
+              .doc(this.resources[this.editedIndex].id)
+              .set(this.editedItem)
           } else {
-            this.resources.push(this.editedItem)
+            db.collection('resources')
+              .add(this.editedItem)
           }
           this.close()
         },
@@ -248,21 +208,5 @@
     })
   </script>
 </body>
-
-<style>
-  .header {
-    text-align: center;
-  }
-
-  .button-container {
-    display: flex;
-    justify-content: space-around;
-  }
-
-  .v-textarea {
-    font-size: 14px;
-    line-height: 21px;
-  }
-</style>
 
 </html>
