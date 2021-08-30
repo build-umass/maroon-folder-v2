@@ -91,6 +91,7 @@
   <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-firestore.js"></script>
+  <!-- Vuefire, https://vuefire.vuejs.org/ -- Makes it easier to bind local data to the Firestore database. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vuefire/2.0.0-alpha.20/vuefire.js"></script>
   <script>
     // Setup Firebase
@@ -102,9 +103,9 @@
       messagingSenderId: "801155733543",
       appId: "1:801155733543:web:86aa94446d8f2c9cf01602"
     }
-    // Initialize Firebase
+    // Initialize Firebase.
     const db = firebase.initializeApp(firebaseConfig).firestore()
-
+    // Use Vuefire plugin.
     Vue.use(Vuefire)
 
     new Vue({
@@ -138,6 +139,7 @@
         },
       }),
 
+      // Bind local array to firestore collection (both called 'resources').
       firestore: {
         resources: db.collection('resources'),
       },
@@ -193,6 +195,8 @@
           })
         },
 
+        // Vuefire binding is one-way; any changes in the database will automatically be reflected in the array, but to
+        // write to the database, must use Firebase API.
         save() {
           if (this.editedIndex > -1) {
             db.collection('resources')
